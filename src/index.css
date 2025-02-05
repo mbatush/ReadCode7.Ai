@@ -1,0 +1,10 @@
+/* Import Tailwind's base styles */
+@tailwind base;
+
+/* Import Tailwind's components (like button, form, etc.) */
+@tailwind components;
+
+/* Import Tailwind's utilities (spacing, colors, flexbox, etc.) */
+@tailwind utilities;
+
+/* Add any custom styles or overrides below */
