@@ -172,6 +172,7 @@ function App() {
 
         <div className="flex justify-center mt-6 space-x-4">
           {/* How It Works Button */}
+
           <button
             onClick={openModal}
             className="px-6 py-3 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition"
@@ -186,6 +187,12 @@ function App() {
           >
             Why Us?
           </button>
+          {isModalOpen && (
+            <HowItWorksModal isOpen={isModalOpen} onClose={closeModal} />
+          )}
+          {isWhyUsOpen && (
+            <WhyUsModal isOpen={isWhyUsOpen} onClose={closeWhyUs} />
+          )}
         </div>
       </section>
 
@@ -208,12 +215,6 @@ function App() {
             <h4 className="text-2xl font-bold text-yellow-600">🏆 #1</h4>
             <p className="text-gray-700">Code Reading Platform</p>
           </div>
-          {isModalOpen && (
-            <HowItWorksModal isOpen={isModalOpen} onClose={closeModal} />
-          )}
-          {isWhyUsOpen && (
-            <WhyUsModal isOpen={isWhyUsOpen} onClose={closeWhyUs} />
-          )}
         </div>
       )}
 
