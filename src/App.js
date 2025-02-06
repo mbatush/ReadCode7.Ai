@@ -27,6 +27,11 @@ function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
+  const updateUser = (userInfo) => {
+    setLoggedIn(true);
+    setUser(userInfo);
+  };
+
   useEffect(() => {
     function start() {
       console.log("this was called");
@@ -91,8 +96,13 @@ function App() {
 
   return (
     <>
-      <ModalManager user={user} isLoggedIn={isLoggedIn} />
-
+      <div>
+        <ModalManager
+          user={user}
+          isLoggedIn={isLoggedIn}
+          updateUser={updateUser}
+        />
+      </div>
       {/* 🌟 Hero Section (Fixes Excessive Space) */}
       <section className="w-full text-center py-8 bg-blue-100 shadow-md">
         <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900">

@@ -33,6 +33,7 @@ const Profile = ({ user, onLogout, isOpen, onClose }) => {
         </div>
 
         {/* Logout Button */}
+        {/*
         <div className="mt-6 flex justify-center">
           <button
             onClick={onLogout}
@@ -41,6 +42,7 @@ const Profile = ({ user, onLogout, isOpen, onClose }) => {
             Logout
           </button>
         </div>
+  */}
 
         {/* Close Profile Button */}
         <div className="mt-6 flex justify-center">
@@ -48,7 +50,7 @@ const Profile = ({ user, onLogout, isOpen, onClose }) => {
             onClick={onClose}
             className="px-10 py-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 transform hover:scale-105"
           >
-            x
+            Close
           </button>
         </div>
       </div>
