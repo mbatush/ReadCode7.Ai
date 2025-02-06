@@ -246,13 +246,13 @@ function App() {
         <div className="mt-0 flex justify-center space-x-6 text-center bg-gray-100 p-6 rounded-lg shadow-md">
           {/* Students Improving */}
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 w-40">
-            <h4 className="text-2xl font-bold text-blue-600">🎓 4+</h4>
+            <h4 className="text-2xl font-bold text-blue-600">🎓 10+</h4>
             <p className="text-gray-700">Students Improving</p>
           </div>
 
           {/* Problems Solved */}
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 w-40">
-            <h4 className="text-2xl font-bold text-green-600">💡 1000+</h4>
+            <h4 className="text-2xl font-bold text-green-600">💡 1300+</h4>
             <p className="text-gray-700">Problems Attempted</p>
           </div>
 
