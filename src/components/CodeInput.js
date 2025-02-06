@@ -7,7 +7,7 @@ const CodeInput = ({ onSubmit }) => {
     <div>
       <h3>Enter Your Solution</h3>
       <textarea
-        rows="8"
+        rows="10"
         cols="50"
         value={code}
         onChange={(e) => setCode(e.target.value)}

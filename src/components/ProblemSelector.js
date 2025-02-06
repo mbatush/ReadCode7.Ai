@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { SqlProblems } from "../data/SqlProblems";
 
-const languages = ["Java", "Python", "JavaScript", "C++"];
+const languages = ["Java", "Python", "JavaScript", "C++", "SQL"];
 
 const problemsByDifficulty = {
   beginner: [
@@ -178,7 +179,11 @@ const ProblemSelector = ({ onProblemSelect }) => {
   const [language, setLanguage] = useState("Java");
 
   const handleGetProblem = () => {
-    const problems = problemsByDifficulty[difficulty];
+    if (language === "SQL") {
+      problems = SqlProblems[difficulty]; // Get SQL problems
+    } else {
+      problems = problemsByDifficulty[difficulty]; // Get coding problems
+    }
     if (!problems || problems.length === 0) return;
 
     const randomProblem = problems[Math.floor(Math.random() * problems.length)];

@@ -5,6 +5,7 @@ const ExplanationInput = ({ onSubmit }) => {
   const [complexity, setComplexity] = useState("O(1)"); // Default selection
 
   const timeComplexities = [
+    "Not Applicable",
     "O(1)",
     "O(log n)",
     "O(n)",
