@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { SqlProblems } from "../data/SqlProblems";
 
-const languages = ["Java", "Python", "JavaScript", "C++"];
+const languages = ["Java", "Python", "JavaScript", "C++", "SQL"];
 
 const problemsByDifficulty = {
   beginner: [
@@ -178,16 +179,33 @@ const ProblemSelector = ({ onProblemSelect }) => {
   const [language, setLanguage] = useState("Java");
 
   const handleGetProblem = () => {
-    const problems = problemsByDifficulty[difficulty];
-    if (!problems || problems.length === 0) return;
+    console.log("🟢 Get Problem button clicked!");
+
+    let problems = [];
+
+    if (language === "SQL") {
+      console.log("🔍 SQL Mode Selected");
+      problems = SqlProblems[difficulty]?.map((p) => p.title) || []; // Extract only titles
+    } else {
+      console.log("🔍 Non-SQL Mode Selected");
+      problems = problemsByDifficulty[difficulty] || [];
+    }
+
+    console.log(`🎯 Available Problems for ${difficulty}:`, problems);
+
+    if (!problems.length) {
+      console.error("⚠️ No problems found for this difficulty.");
+      return;
+    }
 
     const randomProblem = problems[Math.floor(Math.random() * problems.length)];
     console.log(
-      "🎯 Selected Problem:",
+      "✅ Selected problem:",
       randomProblem,
       "📝 Language:",
       language
     );
+
     onProblemSelect(randomProblem, language);
   };
 
