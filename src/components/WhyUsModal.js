@@ -1,4 +1,3 @@
-// WhyUsModal.js
 import React from "react";
 
 const WhyUsModal = ({ isOpen, onClose }) => {
@@ -8,39 +7,41 @@ const WhyUsModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
       <div className="bg-white p-10 rounded-xl max-w-3xl mx-auto shadow-lg transform transition-all scale-105">
         <h2 className="text-4xl font-extrabold text-gray-900 mb-6 text-center">
-          Why Us?
+          Why Choose Us?
         </h2>
         <p className="text-xl text-gray-700 mb-8 text-center">
           Here are <span className="font-bold">3 key reasons</span> why our
-          platform helps you become a better coder:
+          platform will help you level up as a coder:
         </p>
         <ol className="list-decimal pl-6 space-y-4 text-gray-700 text-lg">
           <li>
             <span className="font-semibold">
-              90% of a Software Engineer's time is spent reading code.
+              Software engineers spend 90% of their time reading code.
             </span>
-            The faster you read and comprehend code the more time you spend
-            coding
+            The faster you can read and understand code, the more efficiently
+            you'll code.
           </li>
           <li>
             <span className="font-semibold">
-              Every line of code is read at least 10 times.
+              Every line of code is read and reviewed at least 10 times.
             </span>
-            This deep review process helps internalize patterns and techniques.
+            This deep review process helps you internalize best practices and
+            techniques.
           </li>
           <li>
             <span className="font-semibold">
-              Fastest way to improve at LeetCode.
+              The fastest way to improve at LeetCode is to understand the
+              solutions, not just memorize them.
             </span>
-            Our platform forces you to understand not memorize solutions
+            Our platform forces you to focus on understanding concepts.
           </li>
 
           <li>
             <span className="font-semibold">
-              Teaching is the best way to learn.
+              Teaching is one of the best ways to solidify knowledge.
             </span>
-            Our platform makes you explain code in your own words to make sure
-            you understand it
+            Our platform encourages you to explain code in your own words,
+            ensuring you truly grasp it.
           </li>
         </ol>
 

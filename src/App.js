@@ -1,6 +1,6 @@
 import "./index.css";
 import "./styles/tailwind-pre-build.css";
-
+import { GoogleOAuthProvider } from "@leecheuk/react-google-login";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProblemSelector from "./components/ProblemSelector";
@@ -10,7 +10,15 @@ import Feedback from "./components/Feedback";
 import Timer from "./components/Timer";
 import HowItWorksModal from "./components/HowItWorksModal";
 import WhyUsModal from "./components/WhyUsModal";
+import { gapi } from "gapi-script";
+import Login from "./components/Login";
+import Logout from "./components/Logout";
+import Profile from "./components/Profile";
+
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+
+const clientId =
+  "539258541805-jej97k38n6vrcepvvgpo5fqj1ii1v7pp.apps.googleusercontent.com";
 
 function App() {
   const [selectedProblem, setSelectedProblem] = useState(null);
@@ -24,11 +32,34 @@ function App() {
   const [timerRunning, setTimerRunning] = useState(true); // ✅ Added state to control timer
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
   const [isWhyUsOpen, setWhyUs] = useState(false);
+  const [isProfileOpen, setProfile] = useState(false);
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   const openWhyUs = () => setWhyUs(true);
   const closeWhyUs = () => setWhyUs(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const openProfile = () => setProfile(true);
+  const closeProfile = () => setProfile(false);
+
+  const updateUser = (userInfo) => {
+    setLoggedIn(true);
+    setUser(userInfo);
+  };
+
+  useEffect(() => {
+    function start() {
+      console.log("this was called");
+
+      gapi.client.init({
+        clientId: clientId,
+        scope: "profile email", // Add the appropriate scope
+      });
+    }
+    gapi.load("client:auth2", start);
+  }, []);
 
   useEffect(() => {
     if (selectedProblem) {
@@ -162,6 +193,46 @@ function App() {
 
   return (
     <>
+      <div className="flex justify-center bg-blue-100 p-2 rounded-lg shadow-md">
+        {/* View Profile Button */}
+        {!isLoggedIn && <Login updateUser={updateUser} />}
+
+        {isLoggedIn && (
+          <button
+            onClick={openProfile}
+            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-blue-600 transform hover:scale-105 transition duration-300 mr-1"
+          >
+            View Profile
+          </button>
+        )}
+
+        {/* How It Works Button */}
+        <button
+          onClick={openModal}
+          className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-blue-600 transform hover:scale-105 transition duration-300 mr-1"
+        >
+          How It Works
+        </button>
+
+        {/* Why Us / About Us Button */}
+        <button
+          onClick={openWhyUs}
+          className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-green-600 transform hover:scale-105 transition duration-300"
+        >
+          Why Us?
+        </button>
+
+        {isProfileOpen && (
+          <Profile user={user} isOpen={isProfileOpen} onClose={closeProfile} />
+        )}
+        {isModalOpen && (
+          <HowItWorksModal isOpen={isModalOpen} onClose={closeModal} />
+        )}
+        {isWhyUsOpen && (
+          <WhyUsModal isOpen={isWhyUsOpen} onClose={closeWhyUs} />
+        )}
+      </div>
+
       {/* 🌟 Hero Section (Fixes Excessive Space) */}
       <section className="w-full text-center py-8 bg-blue-100 shadow-md">
         <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900">
@@ -169,31 +240,6 @@ function App() {
           <span className="text-green-500 mx-2">→</span>
           Write Code Better.
         </h1>
-
-        <div className="flex justify-center mt-6 space-x-4">
-          {/* How It Works Button */}
-
-          <button
-            onClick={openModal}
-            className="px-6 py-3 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition"
-          >
-            How It Works
-          </button>
-
-          {/* Why Us / About Us Button */}
-          <button
-            onClick={openWhyUs}
-            className="px-6 py-3 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition"
-          >
-            Why Us?
-          </button>
-          {isModalOpen && (
-            <HowItWorksModal isOpen={isModalOpen} onClose={closeModal} />
-          )}
-          {isWhyUsOpen && (
-            <WhyUsModal isOpen={isWhyUsOpen} onClose={closeWhyUs} />
-          )}
-        </div>
       </section>
 
       {!selectedProblem && (
