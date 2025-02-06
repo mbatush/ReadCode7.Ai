@@ -1,15 +1,21 @@
 import "./index.css";
 import "./styles/tailwind-pre-build.css";
+import { GoogleOAuthProvider } from "@leecheuk/react-google-login";
 import React, { useState, useEffect } from "react";
-
+import axios from "axios";
 import ProblemSelector from "./components/ProblemSelector";
 import CodeDisplay from "./components/CodeDisplay";
 import ExplanationInput from "./components/ExplanationInput";
 import Feedback from "./components/Feedback";
 import Timer from "./components/Timer";
+import HowItWorksModal from "./components/HowItWorksModal";
+import WhyUsModal from "./components/WhyUsModal";
 import { gapi } from "gapi-script";
-import ModalManager from "./components/ModalManager";
-import { fetchGptSolution, fetchHint } from "./utils/OpenAi";
+import Login from "./components/Login";
+import Logout from "./components/Logout";
+import Profile from "./components/Profile";
+
+const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
 const clientId =
   "539258541805-jej97k38n6vrcepvvgpo5fqj1ii1v7pp.apps.googleusercontent.com";
@@ -24,8 +30,24 @@ function App() {
   const [timeUp, setTimeUp] = useState(false);
   const [failed, setFailed] = useState(false);
   const [timerRunning, setTimerRunning] = useState(true); // ✅ Added state to control timer
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [isWhyUsOpen, setWhyUs] = useState(false);
+  const [isProfileOpen, setProfile] = useState(false);
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+
+  const openWhyUs = () => setWhyUs(true);
+  const closeWhyUs = () => setWhyUs(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const openProfile = () => setProfile(true);
+  const closeProfile = () => setProfile(false);
+
+  const updateUser = (userInfo) => {
+    setLoggedIn(true);
+    setUser(userInfo);
+  };
 
   useEffect(() => {
     function start() {
@@ -47,25 +69,92 @@ function App() {
     }
   }, [selectedProblem]);
 
-  const handleProblemSelect = async (problemName, language) => {
-    setSelectedProblem(problemName);
-    setSelectedLanguage(language);
-    setGptSolution(null);
-    setUserExplanation("");
-    setUserComplexity("Not sure");
-    setHint(null);
-    setTimeUp(false);
-    setFailed(false);
-    setTimerRunning(true);
+  const fetchGptSolution = async (problemName, language) => {
+    try {
+      console.log(
+        " Asking GPT to generate the problem",
+        language,
+        "code for:",
+        problemName
+      );
+      const response = await axios.post(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a coding assistant. Write a clean, optimized function for the given problem. However, DO NOT include the problem name in the function or class name. Instead, use 'Solution' for the class and 'xyz' for the method name, with ZERO comments.",
+            },
+            {
+              role: "user",
+              content: `Write a solution in ${language} for the LeetCode problem: "${problemName}".
+                      - Use 'Solution' as the class name (if applicable).
+                      - Name the main function 'xyz'.
+                      - Do not include any explanation.
+                      - Keep the rest of the code normal (variable names, logic).`,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 300,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+          },
+        }
+      );
 
-    const solution = await fetchGptSolution(problemName, language);
-    setGptSolution(solution);
+      const gptCode = response.data.choices[0].message.content.trim();
+      console.log("✅ GPT Generated Code in", language, ":", gptCode);
+      setGptSolution(gptCode);
+    } catch (error) {
+      console.error("❌ Error fetching GPT solution:", error);
+      setGptSolution("⚠️ GPT could not generate a solution.");
+    }
   };
 
-  const handleFetchHint = async () => {
+  const fetchHint = async () => {
     if (!selectedProblem) return;
-    const hintResponse = await fetchHint(selectedProblem);
-    setHint(hintResponse);
+
+    try {
+      console.log("💡 Fetching hint for:", selectedProblem);
+      const response = await axios.post(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a coding assistant. Provide a small hint for the given problem.",
+            },
+            {
+              role: "user",
+              content: `Give a concise hint for solving: "${selectedProblem}". 
+                        Do NOT reveal the full approach, just a nudge to help solve it.`,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 50,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+          },
+        }
+      );
+
+      const hintResponse = response.data.choices[0].message.content.trim();
+      console.log("✅ GPT Hint:", hintResponse);
+      setHint(hintResponse);
+    } catch (error) {
+      console.error("❌ Error fetching hint:", error);
+      setHint("⚠️ Could not generate a hint.");
+    }
   };
 
   const handleTimeUp = () => {
@@ -83,6 +172,19 @@ function App() {
     setTimerRunning(false); // ✅ Stop timer when resetting
   };
 
+  const handleProblemSelect = (problemName, language) => {
+    setSelectedProblem(problemName);
+    setSelectedLanguage(language);
+    setGptSolution(null);
+    setUserExplanation("");
+    setUserComplexity("not sure");
+    setHint(null);
+    setTimeUp(false);
+    setFailed(false);
+    setTimerRunning(true); // ✅ Start timer when a problem is selected
+    fetchGptSolution(problemName, language);
+  };
+
   const handleSubmitExplanation = (explanation, complexity) => {
     setUserExplanation(explanation);
     setUserComplexity(complexity);
@@ -91,7 +193,45 @@ function App() {
 
   return (
     <>
-      <ModalManager user={user} isLoggedIn={isLoggedIn} />
+      <div className="flex justify-center bg-blue-100 p-2 rounded-lg shadow-md">
+        {/* View Profile Button */}
+        {!isLoggedIn && <Login updateUser={updateUser} />}
+
+        {isLoggedIn && (
+          <button
+            onClick={openProfile}
+            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-blue-600 transform hover:scale-105 transition duration-300 mr-1"
+          >
+            View Profile
+          </button>
+        )}
+
+        {/* How It Works Button */}
+        <button
+          onClick={openModal}
+          className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-blue-600 transform hover:scale-105 transition duration-300 mr-1"
+        >
+          How It Works
+        </button>
+
+        {/* Why Us / About Us Button */}
+        <button
+          onClick={openWhyUs}
+          className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-xl hover:bg-green-600 transform hover:scale-105 transition duration-300"
+        >
+          Why Us?
+        </button>
+
+        {isProfileOpen && (
+          <Profile user={user} isOpen={isProfileOpen} onClose={closeProfile} />
+        )}
+        {isModalOpen && (
+          <HowItWorksModal isOpen={isModalOpen} onClose={closeModal} />
+        )}
+        {isWhyUsOpen && (
+          <WhyUsModal isOpen={isWhyUsOpen} onClose={closeWhyUs} />
+        )}
+      </div>
 
       {/* 🌟 Hero Section (Fixes Excessive Space) */}
       <section className="w-full text-center py-8 bg-blue-100 shadow-md">
@@ -136,11 +276,11 @@ function App() {
         {failed && (
           <div className="w-full max-w-lg bg-red-50 p-8 rounded-2xl shadow-xl text-center border border-red-300">
             <h2 className="text-3xl font-extrabold text-red-700 flex items-center justify-center gap-2">
-              <span> ❌ Time's Up - You Failed ❌ </span>
+              ❌ <span>Time's Up! You Failed.</span>
             </h2>
             <button
               onClick={resetGame}
-              className="mt-6 px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-lg hover:bg-red-600 transition duration-300 shadow-md"
+              className="mt-6 px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 shadow-md"
             >
               Try Again
             </button>
@@ -156,7 +296,7 @@ function App() {
 
             {/* ⏳ Timer */}
             {!timeUp && timerRunning && (
-              <Timer timeLimit={90} onTimeUp={handleTimeUp} />
+              <Timer timeLimit={120} onTimeUp={handleTimeUp} />
             )}
 
             {/* 📜 Code Display */}
@@ -167,23 +307,12 @@ function App() {
             </div>
 
             {/* 💡 Hint Button */}
-
-            {/* 💡 Hint & Return Buttons */}
-            <div className="mt-3 flex w-full justify-center gap-2">
-              <button
-                onClick={handleFetchHint}
-                className="w-1/5 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mr-2"
-              >
-                Get Hint
-              </button>
-
-              <button
-                onClick={resetGame}
-                className="w-1/5 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-              >
-                Return
-              </button>
-            </div>
+            <button
+              onClick={fetchHint}
+              className="mt-3 w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+            >
+              Get a Hint
+            </button>
 
             {/* 📝 Display Hint */}
             {hint && (
