@@ -156,7 +156,7 @@ function App() {
 
             {/* ⏳ Timer */}
             {!timeUp && timerRunning && (
-              <Timer timeLimit={2} onTimeUp={handleTimeUp} />
+              <Timer timeLimit={90} onTimeUp={handleTimeUp} />
             )}
 
             {/* 📜 Code Display */}
