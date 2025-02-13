@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import AxiosInstance from "./Axios"; // Ensure this is correctly imported
 
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
-const Feedback = ({ userExplanation, problem, complexity }) => {
+const Feedback = ({ userExplanation, problem, complexity, userEmail }) => {
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(null);
+
+  // Function to update score in Django
+  const updateUserScore = async (newScore) => {
+    if (!userEmail) return;
+
+    try {
+      const response = await AxiosInstance.post("/userstats/update_score/", {
+        email: userEmail,
+        score: newScore,
+      });
+      console.log("✅ Score updated in Django:", response.data);
+    } catch (error) {
+      console.error("❌ Error updating score:", error);
+    }
+  };
 
   useEffect(() => {
     const getFeedback = async () => {
@@ -32,7 +48,7 @@ const Feedback = ({ userExplanation, problem, complexity }) => {
                                 \n\n${problem.code}
                                 \n\nHere is the user's explanation:
                                 \n\n"${userExplanation}"
-                                \n\n the using beleives the time complexity is ${complexity}
+                                \n\nThe user believes the time complexity is ${complexity}.
                                 \n\nEvaluate their understanding, provide a score (0-10) first as "Your score is X/10." followed by a newline and then a detailed paragraph response.`,
               },
             ],
@@ -53,7 +69,9 @@ const Feedback = ({ userExplanation, problem, complexity }) => {
         // Extract score from AI response
         const scoreMatch = aiResponse.match(/Your score is (\d+)\/10/);
         if (scoreMatch) {
-          setScore(scoreMatch[1]); // Extract score value
+          const newScore = parseInt(scoreMatch[1], 10);
+          setScore(newScore);
+          updateUserScore(newScore); // Update the score in Django
           setFeedback(aiResponse.replace(scoreMatch[0], "").trim()); // Remove score from response
         } else {
           setFeedback(aiResponse);

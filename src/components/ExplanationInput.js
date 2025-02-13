@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import AxiosInstance from "./Axios"; // Import Axios
 
-const ExplanationInput = ({ onSubmit }) => {
+const ExplanationInput = ({ onSubmit, userEmail }) => {
   const [explanation, setExplanation] = useState("");
-  const [complexity, setComplexity] = useState("O(1)"); // Default selection
+  const [complexity, setComplexity] = useState("O(1)");
 
   const timeComplexities = [
     "Not Applicable",
@@ -17,14 +18,34 @@ const ExplanationInput = ({ onSubmit }) => {
     "O(n!)",
   ];
 
+  const handleSubmit = async () => {
+    if (!userEmail) {
+      onSubmit(explanation, complexity);
+      return;
+    }
+
+    try {
+      // Send request to Django to increment problems completed
+      const response = await AxiosInstance.post(
+        "/userstats/increment_problems_completed/",
+        {
+          email: userEmail, // Pass user email to Django
+        }
+      );
+    } catch (error) {
+      console.error("Error updating problem count:", error);
+    }
+    onSubmit(explanation, complexity);
+
+    // Call parent onSubmit function
+  };
+
   return (
     <div className="w-full mt-6 p-6 bg-white rounded-lg shadow-md">
-      {/* 📝 Title */}
       <h3 className="text-lg font-semibold text-gray-800 mb-2">
         Explain the Code as Best You Can
       </h3>
 
-      {/* ✍️ Text Input */}
       <textarea
         rows="5"
         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 resize-none"
@@ -33,7 +54,6 @@ const ExplanationInput = ({ onSubmit }) => {
         onChange={(e) => setExplanation(e.target.value)}
       />
 
-      {/* ⏳ Time Complexity Dropdown */}
       <div className="mt-4">
         <label className="block text-gray-700 font-medium mb-1">
           Select Time Complexity:
@@ -51,9 +71,8 @@ const ExplanationInput = ({ onSubmit }) => {
         </select>
       </div>
 
-      {/* 🚀 Submit Button */}
       <button
-        onClick={() => onSubmit(explanation, complexity)}
+        onClick={handleSubmit} // 🔥 Calls Django when clicked
         className="mt-4 w-full bg-green-500 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-green-600 transition duration-300"
       >
         Submit Explanation

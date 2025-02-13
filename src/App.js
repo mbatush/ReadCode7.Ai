@@ -204,7 +204,10 @@ function App() {
 
             {/* ✍️ Explanation Input */}
             <div className="mt-4">
-              <ExplanationInput onSubmit={handleSubmitExplanation} />
+              <ExplanationInput
+                onSubmit={handleSubmitExplanation}
+                userEmail={user != null && user.email}
+              />
             </div>
 
             {/* 🎯 Feedback Section */}
@@ -214,6 +217,7 @@ function App() {
                   userExplanation={userExplanation}
                   complexity={userComplexity}
                   problem={{ title: selectedProblem, code: gptSolution }}
+                  userEmail={user != null && user.email}
                 />
 
                 <button

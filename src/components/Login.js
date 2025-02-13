@@ -1,17 +1,32 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@leecheuk/react-google-login";
+import AxiosInstance from "./Axios";
 
 const clientId =
   "539258541805-jej97k38n6vrcepvvgpo5fqj1ii1v7pp.apps.googleusercontent.com";
 
 export default function Login({ updateUser }) {
-  const [user, setUser] = useState(null); // Manage user state
+  const [user, setUser] = useState(null);
 
   // Handle login success
-  const onSuccess = (res) => {
+  const onSuccess = async (res) => {
     console.log("Login success, the current user is ", res.profileObj);
-    setUser(res.profileObj); // Set the user state
-    updateUser(res.profileObj); // Call updateUser with the logged-in user data
+    setUser(res.profileObj);
+    updateUser(res.profileObj);
+
+    // ✅ Send user data to Django to create the user
+    try {
+      const response = await AxiosInstance.post(
+        "userstats/create_or_update_user/",
+        {
+          email: res.profileObj.email,
+          name: res.profileObj.name,
+        }
+      );
+      console.log("User successfully created or found:", response.data);
+    } catch (error) {
+      console.error("Error creating user in Django:", error.message);
+    }
   };
 
   // Handle login failure
@@ -21,7 +36,6 @@ export default function Login({ updateUser }) {
 
   return (
     <div>
-      {/* Custom styled Google Login Button */}
       <GoogleLogin
         clientId={clientId}
         buttonText="Login"

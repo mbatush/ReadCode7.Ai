@@ -10,7 +10,7 @@ const WhyUsModal = ({ isOpen, onClose }) => {
           Why Choose Us?
         </h2>
         <p className="text-xl text-gray-700 mb-8 text-center">
-          Here are <span className="font-bold">3 key reasons</span> why our
+          Here are <span className="font-bold">4 key reasons</span> why our
           platform will help you level up as a coder:
         </p>
         <ol className="list-decimal pl-6 space-y-4 text-gray-700 text-lg">

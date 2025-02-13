@@ -1,54 +1,81 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import AxiosInstance from "./Axios";
 
-const Profile = ({ user, onLogout, isOpen, onClose }) => {
-  if (!isOpen) return null; // If profile modal is not open, return nothing
-  console.log("got here");
+const Profile = ({ isOpen, onClose, user }) => {
+  const [userStats, setUserStats] = useState(null);
+
+  useEffect(() => {
+    if (isOpen && user?.email) {
+      fetchUserData(user.email);
+    }
+  }, [isOpen, user?.email]); // Depend on modal state & user email
+
+  const fetchUserData = async (email) => {
+    try {
+      console.log("Fetching user data for:", email);
+      const response = await AxiosInstance.get(`userstats/?email=${email}`);
+      console.log("User Data Fetched:", response.data);
+
+      setUserStats(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-      <div className="bg-white p-10 rounded-xl max-w-3xl mx-auto shadow-lg transform transition-all scale-105">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-6 text-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl max-w-lg w-full transform transition-all scale-100">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 text-center">
           Your Profile
         </h2>
 
-        {/* User Info */}
-        <div className="space-y-4">
-          <div className="flex flex-col space-y-2">
-            <p className="font-semibold text-gray-700">Full Name</p>
-            <p className="text-lg text-gray-900">{user.name}</p>
+        {user && (
+          <div className="bg-gray-100 p-6 rounded-lg shadow-inner">
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">Name:</span> {user.name}
+            </p>
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">Email:</span>{" "}
+              {user.email}
+            </p>
           </div>
+        )}
 
-          <div className="flex flex-col space-y-2">
-            <p className="font-semibold text-gray-700">Email</p>
-            <p className="text-lg text-gray-900">{user.email}</p>
+        {userStats ? (
+          <div className="bg-gray-200 p-6 rounded-lg shadow-inner mt-4">
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">Level:</span>{" "}
+              {userStats.level}
+            </p>
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">
+                Experience Points:
+              </span>{" "}
+              {userStats.experience_points}
+            </p>
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">
+                Total Problems Completed:
+              </span>{" "}
+              {userStats.total_problems_completed}
+            </p>
+            <p className="text-lg font-semibold text-gray-700">
+              <span className="font-bold text-gray-900">Average Score:</span>{" "}
+              {userStats.average_score.toFixed(2)}
+            </p>
           </div>
+        ) : (
+          <p className="text-center text-gray-500 text-lg mt-4">
+            Loading user stats...
+          </p>
+        )}
 
-          <div className="flex flex-col space-y-2">
-            <p className="font-semibold text-gray-700">Profile Image</p>
-            <img
-              src={user.imageUrl}
-              alt="Profile"
-              className="w-32 h-32 rounded-full mx-auto"
-            />
-          </div>
-        </div>
-
-        {/* Logout Button */}
-        {/*
-        <div className="mt-6 flex justify-center">
-          <button
-            onClick={onLogout}
-            className="px-5 py-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300 transform hover:scale-105"
-          >
-            Logout
-          </button>
-        </div>
-  */}
-
-        {/* Close Profile Button */}
         <div className="mt-6 flex justify-center">
           <button
             onClick={onClose}
-            className="px-10 py-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 transform hover:scale-105"
+            className="px-8 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 transition-transform duration-300 transform hover:scale-105"
           >
             Close
           </button>
