@@ -14,7 +14,7 @@ export default function Login({ updateUser }) {
     setUser(res.profileObj);
     updateUser(res.profileObj);
 
-    /* // ✅ Send user data to Django to create the user
+    // ✅ Send user data to Django to create the user
     try {
       const response = await AxiosInstance.post(
         "userstats/create_or_update_user/",
@@ -28,8 +28,7 @@ export default function Login({ updateUser }) {
       console.error("Error creating user in Django:", error.message);
     }
   };
-  */
-  };
+
   // Handle login failure
   const onFailure = (res) => {
     console.log("Login failed", res);

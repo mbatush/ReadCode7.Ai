@@ -10,7 +10,6 @@ import Timer from "./components/Timer";
 import { gapi } from "gapi-script";
 import ModalManager from "./components/ModalManager";
 import { fetchGptSolution, fetchHint } from "./utils/OpenAi";
-import ScoreCheck from "./components/ScoreCheck";
 
 const clientId =
   "539258541805-jej97k38n6vrcepvvgpo5fqj1ii1v7pp.apps.googleusercontent.com";
@@ -97,9 +96,6 @@ function App() {
 
   return (
     <>
-      <div>
-        <ScoreCheck> </ScoreCheck>
-      </div>
       <div>
         <ModalManager
           user={user}
