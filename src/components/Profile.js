@@ -13,12 +13,16 @@ const Profile = ({ isOpen, onClose, user }) => {
   const fetchUserData = async (email) => {
     try {
       console.log("Fetching user data for:", email);
-      const response = await AxiosInstance.get(`userstats/?email=${email}`);
-      console.log("User Data Fetched:", response.data);
 
+      // Ensure Axios is correctly used
+      const response = await AxiosInstance.get(`/userstats/`, {
+        params: { email }, // ✅ Use params instead of manual string concat
+      });
+
+      console.log("✅ User Data Fetched:", response.data);
       setUserStats(response.data);
     } catch (error) {
-      console.error("Error fetching user data:", error.message);
+      console.error("❌ Error fetching user data:", error.message);
     }
   };
 
